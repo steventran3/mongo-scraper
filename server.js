@@ -95,6 +95,36 @@ app.post('/articles/:id', (req,res) =>{
   })
 });
 
+app.get('/note/:id', (req,res) =>{
+  let id = req.params.id
+  // console.log(id)
+  
+  db.Save.findOne({_id:id})
+  //Make sure to populate from the field not the model name
+  .populate('notes')
+  .then(dbArticle => {
+    res.json(dbArticle)
+  })
+  .catch(err => {
+    res.json(err)
+  })
+});
+
+app.post('/note/:id', (req,res) => {
+  db.Note.create(req.body)
+    .then(function(dbNote){
+      // console.log(req.params.id)
+      // console.log(dbNote._id)
+   return db.Save.findOneAndUpdate({_id:req.params.id}, {notes: dbNote._id}, {new:true});
+    })
+    .then(function(dbArticle){
+      console.log(dbArticle)
+    })
+    .catch(function(err){
+      res.json(err)
+    })
+});
+
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}!`);
 });
